@@ -51,6 +51,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
@@ -71,6 +75,21 @@ public class MainFragment extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onActivityCreated(savedInstanceState);
+
+        Interface mInterface = API.getAPI().create(Interface.class);
+        Call<CheckModel> call = mInterface.getMessage();
+        call.enqueue(new Callback<CheckModel>() {
+            @Override
+            public void onResponse(Call<CheckModel> call, Response<CheckModel> response) {
+                Toast.makeText(getActivity(), ""+response.body().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<CheckModel> call, Throwable t) {
+                Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
+                startActivity(intent);
+            }
+        });
 
         prepareBackgroundManager();
 
@@ -108,6 +127,7 @@ public class MainFragment extends BrowseFragment {
             HeaderItem header = new HeaderItem(i, MovieList.MOVIE_CATEGORY[i]);
             rowsAdapter.add(new ListRow(header, listRowAdapter));
         }
+/*
 
         HeaderItem gridHeader = new HeaderItem(i, "PREFERENCES");
 
@@ -117,6 +137,7 @@ public class MainFragment extends BrowseFragment {
         gridRowAdapter.add(getString(R.string.error_fragment));
         gridRowAdapter.add(getResources().getString(R.string.personal_settings));
         rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
+*/
 
         setAdapter(rowsAdapter);
     }
@@ -202,7 +223,8 @@ public class MainFragment extends BrowseFragment {
                         ((ImageCardView) itemViewHolder.view).getMainImageView(),
                         DetailsActivity.SHARED_ELEMENT_NAME)
                         .toBundle();
-                getActivity().startActivity(intent, bundle);
+                //getActivity().startActivity(intent, bundle);
+                Toast.makeText(getActivity(), movie.getTitle(), Toast.LENGTH_SHORT).show();
             } else if (item instanceof String) {
                 if (((String) item).contains(getString(R.string.error_fragment))) {
                     Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
