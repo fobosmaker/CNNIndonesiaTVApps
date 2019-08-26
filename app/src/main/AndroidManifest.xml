@@ -21,10 +21,10 @@
         <activity android:name=".BrowseErrorActivity" />
         <activity
             android:name=".MainActivity"
-            android:banner="@drawable/ex_thumbnail"
-            android:icon="@drawable/ex_thumbnail"
+            android:banner="@drawable/cnn_app_icon"
+            android:icon="@drawable/cnn_app_icon"
             android:label="@string/app_name"
-            android:logo="@drawable/ex_thumbnail"
+            android:logo="@drawable/cnn_app_icon"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
