@@ -54,7 +54,7 @@ public final class MovieList {
                 + "facilisis mattis. Ut aliquet luctus lacus. Phasellus nec commodo erat. Praesent tempus id "
                 + "lectus ac scelerisque. Maecenas pretium cursus lectus id volutpat.";
         String studio[] = {
-                "Studio Zero", "Studio One", "Studio Two", "Studio Three", "Studio Four"
+                "2019-08-09T11:45:11.000Z", "2019-08-09T11:45:11.000Z", "2019-08-09T11:45:11.000Z", "2019-08-09T11:45:11.000Z", "2019-08-09T11:45:11.000Z"
         };
         String videoUrl[] = {
                 "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4",
@@ -99,14 +99,14 @@ public final class MovieList {
             String videoUrl,
             String cardImageUrl,
             String backgroundImageUrl) {
-        Movie movie = new Movie();
-        movie.setId(count++);
-        movie.setTitle(title);
-        movie.setDescription(description);
-        movie.setStudio(studio);
-        movie.setCardImageUrl(cardImageUrl);
-        movie.setBackgroundImageUrl(backgroundImageUrl);
-        movie.setVideoUrl(videoUrl);
+        Movie movie = new Movie(String.valueOf(count++),title,description, backgroundImageUrl, cardImageUrl, videoUrl,studio);
+//        movie.setId(count++);
+//        movie.setTitle(title);
+//        movie.setDescription(description);
+//        movie.setStudio(studio);
+//        movie.setCardImageUrl(cardImageUrl);
+//        movie.setBackgroundImageUrl(backgroundImageUrl);
+//        movie.setVideoUrl(videoUrl);
         return movie;
     }
 }
