@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
@@ -68,8 +69,8 @@ public class MainFragment extends BrowseFragment {
     private static final int BACKGROUND_UPDATE_DELAY = 300;
     private static final int GRID_ITEM_WIDTH = 200;
     private static final int GRID_ITEM_HEIGHT = 200;
-    private static final int NUM_ROWS = 6;
-    private static final int NUM_COLS = 15;
+    //private static final int NUM_ROWS = 6;
+    //private static final int NUM_COLS = 15;
 
     private final Handler mHandler = new Handler();
     private Drawable mDefaultBackground;
@@ -85,7 +86,7 @@ public class MainFragment extends BrowseFragment {
         super.onActivityCreated(savedInstanceState);
 
         Interface mInterface = API.getAPI().create(Interface.class);
-        Call<AllPlaylistItems> call = mInterface.getPlaylistItemsAll();
+        Call<AllPlaylistItems> call = mInterface.getPlaylistItemsAll(BuildConfig.DEFAULT_CHANNEL_ID);
         call.enqueue(new Callback<AllPlaylistItems>() {
             @Override
             public void onResponse(Call<AllPlaylistItems> call, Response<AllPlaylistItems> response) {
@@ -102,15 +103,14 @@ public class MainFragment extends BrowseFragment {
                 Toast.makeText(getActivity(),t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
-
         prepareBackgroundManager();
-
         setupUIElements();
 
         //loadRows();
 
         setupEventListeners();
+
+
     }
 
     @Override
@@ -149,6 +149,7 @@ public class MainFragment extends BrowseFragment {
         //mDefaultBackground = ContextCompat.getDrawable(getActivity(), R.drawable.ex_thumbnail);
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+        //mBackgroundManager.setDrawable(getResources().getDrawable(R.drawable.ex_thumbnail));
     }
 
     private void setupUIElements() {
