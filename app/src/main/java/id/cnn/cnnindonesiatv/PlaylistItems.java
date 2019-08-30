@@ -1,8 +1,9 @@
 package id.cnn.cnnindonesiatv;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PlaylistItems {
+public class PlaylistItems implements Serializable {
     private String kategori;
     private String playlistId;
     private List<Movie> items;

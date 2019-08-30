@@ -14,10 +14,11 @@
 
 package id.cnn.cnnindonesiatv;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MovieList {
+public final class MovieList implements Serializable {
     public static final String MOVIE_CATEGORY[] = {
             "Category Zero",
             "Category One",
