@@ -1,4 +1,4 @@
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.utility;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

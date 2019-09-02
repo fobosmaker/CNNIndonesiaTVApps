@@ -21,6 +21,12 @@ import com.google.android.youtube.player.YouTubeIntents;
 import java.util.ArrayList;
 import java.util.List;
 
+import id.cnn.cnnindonesiatv.model.Movie;
+import id.cnn.cnnindonesiatv.model.PlaylistItems;
+import id.cnn.cnnindonesiatv.utility.CardPresenter;
+import id.cnn.cnnindonesiatv.utility.TimeDifference;
+import id.cnn.cnnindonesiatv.utility.Utils;
+
 public class SearchFragment extends android.support.v17.leanback.app.SearchFragment implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider{
     private static final String TAG = "SearchFragment";
     private ArrayObjectAdapter mRowsAdapter;

@@ -1,4 +1,4 @@
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.model;
 
 import java.io.Serializable;
 import java.util.List;

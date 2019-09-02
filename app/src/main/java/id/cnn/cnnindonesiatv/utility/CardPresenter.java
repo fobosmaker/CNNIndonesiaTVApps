@@ -12,7 +12,7 @@
  * the License.
  */
 
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.utility;
 
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
@@ -22,6 +22,9 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+
+import id.cnn.cnnindonesiatv.R;
+import id.cnn.cnnindonesiatv.model.Movie;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand.

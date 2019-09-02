@@ -15,7 +15,6 @@
 package id.cnn.cnnindonesiatv;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,10 +32,7 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -51,6 +47,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import id.cnn.cnnindonesiatv.model.AllPlaylistItems;
+import id.cnn.cnnindonesiatv.model.Movie;
+import id.cnn.cnnindonesiatv.model.PlaylistItems;
+import id.cnn.cnnindonesiatv.network.API;
+import id.cnn.cnnindonesiatv.network.Interface;
+import id.cnn.cnnindonesiatv.utility.CardPresenter;
+import id.cnn.cnnindonesiatv.utility.TimeDifference;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -69,12 +72,15 @@ public class MainFragment extends BrowseFragment {
     private String mBackgroundUri;
     private BackgroundManager mBackgroundManager;
     private List<PlaylistItems> data = new ArrayList<>();
+    private ArrayObjectAdapter rowsAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onActivityCreated(savedInstanceState);
-
+        prepareBackgroundManager();
+        setupUIElements();
+        setupEventListeners();
         Interface mInterface = API.getAPI().create(Interface.class);
         Call<AllPlaylistItems> call = mInterface.getPlaylistItemsAll(BuildConfig.DEFAULT_CHANNEL_ID);
         call.enqueue(new Callback<AllPlaylistItems>() {
@@ -82,11 +88,11 @@ public class MainFragment extends BrowseFragment {
             public void onResponse(Call<AllPlaylistItems> call, Response<AllPlaylistItems> response) {
                 if(response.isSuccessful()){
                     data = response.body().getResult();
-                    prepareBackgroundManager();
-                    setupUIElements();
-                    setupEventListeners();
                     loadRows();
-                } else Toast.makeText(getActivity(), "Response failed: "+response.errorBody().toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getActivity(), "Response failed: " + response.errorBody().toString(), Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(getActivity(), BrowseErrorActivity.class));
+                }
             }
 
             @Override
@@ -104,7 +110,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadRows() {
-        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         CardPresenter cardPresenter = new CardPresenter();
         int i;
         for (i = 0; i < data.size(); i++) {
@@ -114,7 +120,7 @@ public class MainFragment extends BrowseFragment {
                 listRowAdapter.add(new Movie(mov.getId(), mov.getTitle(), mov.getDescription(), mov.getBackgroundImageUrl(), mov.getCardImageUrl(), mov.getVideoUrl(), new TimeDifference().executeDateTimeDifference(mov.getStudio())));
             }
             //add itemview more on each playlist
-            listRowAdapter.add(new Movie("","","","","","","View More"));
+            listRowAdapter.add(new Movie("","",data.get(i).getKategori(),"","",data.get(i).getPlaylistId(),"View More"));
             rowsAdapter.add(new ListRow(new HeaderItem(i, data.get(i).getKategori()), listRowAdapter));
         }
         setAdapter(rowsAdapter);
@@ -126,17 +132,13 @@ public class MainFragment extends BrowseFragment {
         mBackgroundManager.attach(getActivity().getWindow());
 
         mDefaultBackground = ContextCompat.getDrawable(getActivity(), R.drawable.default_background);
-        //mDefaultBackground = ContextCompat.getDrawable(getActivity(), R.drawable.ex_thumbnail);
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
-        //mBackgroundManager.setDrawable(getResources().getDrawable(R.drawable.ex_thumbnail));
     }
 
     private void setupUIElements() {
-        // setBadgeDrawable(getActivity().getResources().getDrawable(
-        // R.drawable.videos_by_google_banner));
-        //setTitle("CNN Indonesia"); // Badge, when set, takes precedent
-        setBadgeDrawable(getResources().getDrawable(R.drawable.ex_thumbnail));
+        //setTitle("CNN Indonesia VOD"); // Badge, when set, takes precedent
+        setBadgeDrawable(getResources().getDrawable(R.drawable.logo_cnn));
         // over title
         setHeadersState(HEADERS_ENABLED);
         setHeadersTransitionOnBackEnabled(true);
@@ -161,7 +163,55 @@ public class MainFragment extends BrowseFragment {
         });
 
         setOnItemViewClickedListener(new ItemViewClickedListener());
-        //setOnItemViewSelectedListener(new ItemViewSelectedListener());
+        setOnItemViewSelectedListener(new ItemViewSelectedListener());
+    }
+
+    private final class ItemViewClickedListener implements OnItemViewClickedListener {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
+
+            if (item instanceof Movie) {
+                Movie movie = (Movie) item;
+                if(!movie.getId().equalsIgnoreCase("")){
+                    Intent ytVid = YouTubeIntents.createPlayVideoIntentWithOptions(getActivity(), movie.getVideoUrl(), true, true);
+                    ytVid.putExtra("force_fullscreen",true);
+                    ytVid.putExtra("finish_on_ended",true);
+                    getActivity().startActivity(ytVid);
+                } else {
+                    Intent moreVid = new Intent(getActivity(), MoreVideosActivity.class);
+                    moreVid.putExtra("cat_title",movie.getDescription());
+                    moreVid.putExtra("cat_videoId",movie.getVideoUrl());
+                    startActivity(moreVid);
+                }
+            }
+        }
+    }
+
+    private final class ItemViewSelectedListener implements OnItemViewSelectedListener {
+        @Override
+        public void onItemSelected(
+                Presenter.ViewHolder itemViewHolder,
+                Object item,
+                RowPresenter.ViewHolder rowViewHolder,
+                Row row) {
+            if (item instanceof Movie) {
+                //mBackgroundUri = ((Movie) item).getBackgroundImageUrl();
+                //startBackgroundTimer();
+            }
+        }
+    }
+
+    private class UpdateBackgroundTask extends TimerTask {
+        @Override
+        public void run() {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateBackground(mBackgroundUri);
+                }
+            });
+        }
     }
 
     private void updateBackground(String uri) {
@@ -188,72 +238,5 @@ public class MainFragment extends BrowseFragment {
         }
         mBackgroundTimer = new Timer();
         mBackgroundTimer.schedule(new UpdateBackgroundTask(), BACKGROUND_UPDATE_DELAY);
-    }
-
-    private final class ItemViewClickedListener implements OnItemViewClickedListener {
-        @Override
-        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
-                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
-
-            if (item instanceof Movie) {
-                Movie movie = (Movie) item;
-                if(!movie.getId().equalsIgnoreCase("")){
-                    Intent ytVid = YouTubeIntents.createPlayVideoIntentWithOptions(getActivity(), movie.getVideoUrl(), true, true);
-                    ytVid.putExtra("force_fullscreen",true);
-                    ytVid.putExtra("finish_on_ended",true);
-                    getActivity().startActivity(ytVid);
-                } else Toast.makeText(getActivity(), "Load More", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private final class ItemViewSelectedListener implements OnItemViewSelectedListener {
-        @Override
-        public void onItemSelected(
-                Presenter.ViewHolder itemViewHolder,
-                Object item,
-                RowPresenter.ViewHolder rowViewHolder,
-                Row row) {
-            if (item instanceof Movie) {
-                mBackgroundUri = ((Movie) item).getBackgroundImageUrl();
-                //startBackgroundTimer();
-            }
-        }
-    }
-
-    private class UpdateBackgroundTask extends TimerTask {
-        @Override
-        public void run() {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateBackground(mBackgroundUri);
-                }
-            });
-        }
-    }
-
-    private class GridItemPresenter extends Presenter {
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent) {
-            TextView view = new TextView(parent.getContext());
-            view.setLayoutParams(new ViewGroup.LayoutParams(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT));
-            view.setFocusable(true);
-            view.setFocusableInTouchMode(true);
-            view.setBackgroundColor(
-                    ContextCompat.getColor(getActivity(), R.color.default_background));
-            view.setTextColor(Color.WHITE);
-            view.setGravity(Gravity.CENTER);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-            ((TextView) viewHolder.view).setText((String) item);
-        }
-
-        @Override
-        public void onUnbindViewHolder(ViewHolder viewHolder) {
-        }
     }
 }

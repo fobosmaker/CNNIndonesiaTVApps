@@ -1,4 +1,4 @@
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.utility;
 
 import android.content.Context;
 import android.content.pm.PackageManager;

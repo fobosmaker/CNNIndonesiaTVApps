@@ -1,4 +1,4 @@
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.network;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

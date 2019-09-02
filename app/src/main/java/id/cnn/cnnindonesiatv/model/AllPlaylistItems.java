@@ -1,4 +1,4 @@
-package id.cnn.cnnindonesiatv;
+package id.cnn.cnnindonesiatv.model;
 
 import java.util.List;
 
